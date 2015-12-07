@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 # file names & paths
-tmp="/home/$username/"  # destination folder to store the final iso file
-hostname="VM"
-domain="lab"
+tmp="/home/$USER/"  # destination folder to store the final iso file
 
 # define spinner function for slow tasks
 # courtesy of http://fitnr.com/showing-a-bash-spinner.html
@@ -49,45 +47,22 @@ function program_is_installed {
 echo
 echo " +---------------------------------------------------+"
 echo " |            UNATTENDED UBUNTU ISO MAKER            |"
+echo " |    Ubuntu 14.04.3 LTS Server amd64 - Trusty Tahr  |"
 echo " +---------------------------------------------------+"
-echo
+echo 
 
-# ask whether to include vmware tools or not
-while true; do
-    echo " which ubuntu server edition would you like to remaster:"
-    echo
-    echo "  [1] Ubuntu 12.04.4 LTS Server amd64 - Precise Pangolin"
-    echo "  [2] Ubuntu 14.04.3 LTS Server amd64 - Trusty Tahr"
-    echo
-    read -p " please enter your preference: [1|2]: " ubver
-    case $ubver in
-        [1]* )  download_file="ubuntu-12.04.4-server-amd64.iso"           # filename of the iso to be downloaded
-                download_location="http://releases.ubuntu.com/12.04/"     # location of the file to be downloaded
-                new_iso_name="ubuntu-12.04.4-server-amd64-unattended.iso" # filename of the new iso file to be created
-                break;;
-        [2]* )  download_file="ubuntu-14.04.3-server-amd64.iso"             # filename of the iso to be downloaded
-                download_location="http://releases.ubuntu.com/14.04/"     # location of the file to be downloaded
-                new_iso_name="ubuntu-14.04.3-server-amd64-unattended.iso"   # filename of the new iso file to be created
-                break;;
-        * ) echo " please answer [1] or [2]";;
-    esac
-done
+download_file="ubuntu-14.04.3-server-amd64.iso"             # filename of the iso to be downloaded
+download_location="http://releases.ubuntu.com/14.04/"       # location of the file to be downloaded
+new_iso_name="ubuntu-14.04.3-server-amd64-unattended.iso"   # filename of the new iso file to be created
 
 # ask the user questions about his/her preferences
+read -ep " please enter your preferred hostname: " -i "VM" hostname
+read -ep " please enter your preferred domain:   " -i "lab" domain
 read -ep " please enter your preferred timezone: " -i "Europe/Istanbul" timezone
+read -ep " please enter your preferred keyboard: " -i "tr" keyboard
 read -ep " please enter your preferred username: " -i "smithjo" username
-read -sp " please enter your preferred password: " -i "abc123"  password
-printf "\n"
-read -sp " confirm your preferred password: " -i "abc123" password2
-printf "\n"
+read -ep " please enter your preferred password: " -i "abc123"  password
 read -ep " Make ISO bootable via USB: " -i "yes" bootable
-
-# check if the passwords match to prevent headaches
-if [[ "$password" != "$password2" ]]; then
-    echo " your passwords do not match; please restart the script and try again"
-    echo
-    exit
-fi
 
 # download the ubunto iso
 cd $tmp
@@ -96,11 +71,11 @@ if [[ ! -f $tmp/$download_file ]]; then
     download "$download_location$download_file"
 fi
 
-# download netson seed file
+# download  seed file
 seed_file="vedat.seed"
 if [[ ! -f $tmp/$seed_file ]]; then
     echo -h " downloading $seed_file: "
-    download "https://github.com/netson/ubuntu-unattended/raw/master/$seed_file"
+    download "https://raw.githubusercontent.com/almusaddar/Unattended-Ubuntu-Seed-Script/master/$seed_file"
 fi
 
 # install required packages
@@ -141,7 +116,7 @@ cd $tmp/iso_new
 echo en > $tmp/iso_new/isolinux/lang
 
 # set late command
-late_command="chroot /target wget -O /home/$username/start.sh https://github.com/netson/ubuntu-unattended/raw/master/start.sh ;\
+late_command="chroot /target wget -O /home/$username/start.sh https://raw.githubusercontent.com/almusaddar/Unattended-Ubuntu-Seed-Script/master/start.sh ;\
     chroot /target chmod +x /home/$username/start.sh ;"
 
 # copy the netson seed file to the iso
@@ -161,20 +136,21 @@ pwhash=$(echo $password | mkpasswd -s -m sha-512)
 sed -i "s@{{username}}@$username@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{pwhash}}@$pwhash@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{hostname}}@$hostname@g" $tmp/iso_new/preseed/$seed_file
+sed -i "s@{{domain}}@$domain@g" $tmp/iso_new/preseed/$seed_file
+sed -i "s@{{keyboard}}@$keyboard@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{timezone}}@$timezone@g" $tmp/iso_new/preseed/$seed_file
-
 # calculate checksum for seed file
 seed_checksum=$(md5sum $tmp/iso_new/preseed/$seed_file)
 
 # add the autoinstall option to the menu
 sed -i "/label install/ilabel autoinstall\n\
-  menu label ^Autoinstall NETSON Ubuntu Server\n\
+  menu label ^Autoinstall Ubuntu Server\n\
   kernel /install/vmlinuz\n\
-  append file=/cdrom/preseed/ubuntu-server.seed initrd=/install/initrd.gz auto=true priority=high preseed/file=/cdrom/preseed/netson.seed preseed/file/checksum=$seed_checksum --" $tmp/iso_new/isolinux/txt.cfg
+  append file=/cdrom/preseed/ubuntu-server.seed initrd=/install/initrd.gz auto=true priority=high preseed/file=/cdrom/preseed/vedat.seed preseed/file/checksum=$seed_checksum --" $tmp/iso_new/isolinux/txt.cfg
 
 echo " creating the remastered iso"
 cd $tmp/iso_new
-(mkisofs -D -r -V "NETSON_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $tmp/$new_iso_name . > /dev/null 2>&1) &
+(mkisofs -D -r -V "AUTO_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $tmp/$new_iso_name . > /dev/null 2>&1) &
 spinner $!
 
 # make iso bootable (for dd'ing to  USB stick)
@@ -194,6 +170,8 @@ echo " the new file is located at: $tmp/$new_iso_name"
 echo " your username is: $username"
 echo " your password is: $password"
 echo " your hostname is: $hostname"
+echo " your domain   is: $domain"
+echo " your keyboard is: $keyboard"
 echo " your timezone is: $timezone"
 echo
 
@@ -201,6 +179,8 @@ echo
 unset username
 unset password
 unset hostname
+unset domain
+unset keyboard
 unset timezone
 unset pwhash
 unset download_file

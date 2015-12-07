@@ -1,9 +1,8 @@
 # regional setting + # keyboards are Turkish
-d-i console-setup/ask_detect  boolean false
-d-i console-setup/detect  detect-keyboard 
-d-i console-setup/detected  note  
-d-i debconf/language  string  en_US:en
-d-i debian-installer/consoledisplay string  console-setup
+console-setup console-setup/charmap47 select  UTF-8
+console-setup console-setup/codeset47 select  # Latin1 and Latin5 - western Europe and Turkic languages
+console-setup console-setup/codesetcode string  Lat15
+console-setup console-setup/store_defaults_in_debconf_db  boolean true
 d-i debian-installer/country  string  TR
 d-i debian-installer/language string  en_US:en
 d-i debian-installer/locale select  en_US.UTF-8
@@ -24,12 +23,36 @@ d-i keyboard-configuration/unsupported_layout boolean true
 d-i keyboard-configuration/unsupported_options  boolean true
 d-i keyboard-configuration/variant  select  Turkish
 d-i keyboard-configuration/variantcode  string  
-d-i keyboard-configuration/xkb-keymap select  tr
-d-i localechooser/continentlist select  Asia
+d-i keyboard-configuration/xkb-keymap select  tr  
 d-i localechooser/countrylist/Asia  select  TR
-d-i localechooser/help/locale note  
 d-i localechooser/languagelist  select  en
 d-i localechooser/preferred-locale  select  en_US.UTF-8
+d-i localechooser/supported-locales multiselect en_US.UTF-8
+d-i localechooser/translation/no-select note  
+d-i localechooser/translation/none-yet  note  
+d-i localechooser/translation/warn-light  boolean true
+d-i localechooser/translation/warn-severe boolean false
+keyboard-configuration  console-setup/ask_detect  boolean false
+keyboard-configuration  console-setup/detect  detect-keyboard 
+keyboard-configuration  console-setup/detected  note  
+keyboard-configuration  keyboard-configuration/altgr  select  The default for the keyboard layout
+keyboard-configuration  keyboard-configuration/compose  select  No compose key
+keyboard-configuration  keyboard-configuration/ctrl_alt_bksp  boolean false
+keyboard-configuration  keyboard-configuration/layout select  English (US)
+keyboard-configuration  keyboard-configuration/layoutcode string  us
+keyboard-configuration  keyboard-configuration/model  select  Generic 105-key (Intl) PC
+keyboard-configuration  keyboard-configuration/modelcode  string  pc105
+keyboard-configuration  keyboard-configuration/optionscode  string  
+keyboard-configuration  keyboard-configuration/store_defaults_in_debconf_db boolean true
+keyboard-configuration  keyboard-configuration/switch select  No temporary switch
+keyboard-configuration  keyboard-configuration/toggle select  No toggling
+keyboard-configuration  keyboard-configuration/unsupported_config_layout  boolean true
+keyboard-configuration  keyboard-configuration/unsupported_config_options boolean true
+keyboard-configuration  keyboard-configuration/unsupported_layout boolean true
+keyboard-configuration  keyboard-configuration/unsupported_options  boolean true
+keyboard-configuration  keyboard-configuration/variant  select  English (US)
+keyboard-configuration  keyboard-configuration/variantcode  string  
+keyboard-configuration  keyboard-configuration/xkb-keymap select  us
 
 # network settings
 d-i netcfg/choose_interface                                 select      auto

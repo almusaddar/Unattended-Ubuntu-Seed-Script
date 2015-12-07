@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # file names & paths
-tmp="/home/$USER/"  # destination folder to store the final iso file
+tmp="/tmp/"  # destination folder to store the final iso file
 
 # define spinner function for slow tasks
 # courtesy of http://fitnr.com/showing-a-bash-spinner.html

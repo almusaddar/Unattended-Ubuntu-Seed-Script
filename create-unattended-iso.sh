@@ -59,7 +59,6 @@ new_iso_name="ubuntu-14.04.3-server-amd64-unattended.iso"   # filename of the ne
 read -ep " please enter your preferred hostname: " -i "VM" hostname
 read -ep " please enter your preferred domain:   " -i "lab" domain
 read -ep " please enter your preferred timezone: " -i "Europe/Istanbul" timezone
-read -ep " please enter your preferred keyboard: " -i "tr" keyboard
 read -ep " please enter your preferred username: " -i "smithjo" username
 read -ep " please enter your preferred password: " -i "abc123"  password
 read -ep " Make ISO bootable via USB: " -i "yes" bootable
@@ -137,7 +136,6 @@ sed -i "s@{{username}}@$username@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{pwhash}}@$pwhash@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{hostname}}@$hostname@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{domain}}@$domain@g" $tmp/iso_new/preseed/$seed_file
-sed -i "s@{{keyboard}}@$keyboard@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{timezone}}@$timezone@g" $tmp/iso_new/preseed/$seed_file
 # calculate checksum for seed file
 seed_checksum=$(md5sum $tmp/iso_new/preseed/$seed_file)
@@ -171,7 +169,6 @@ echo " your username is: $username"
 echo " your password is: $password"
 echo " your hostname is: $hostname"
 echo " your domain   is: $domain"
-echo " your keyboard is: $keyboard"
 echo " your timezone is: $timezone"
 echo
 
@@ -180,7 +177,6 @@ unset username
 unset password
 unset hostname
 unset domain
-unset keyboard
 unset timezone
 unset pwhash
 unset download_file
